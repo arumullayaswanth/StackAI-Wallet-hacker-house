@@ -66,16 +66,24 @@ async (input) => {
 
 const prompt = ai.definePrompt({
   name: 'automatedStockInvestmentDecisionsPrompt',
-  input: {schema: AutomatedStockInvestmentDecisionsInputSchema},
+  input: {schema: z.object({
+      ...AutomatedStockInvestmentDecisionsInputSchema.shape,
+      mockStockData: z.array(StockPredictionSchema).describe('A list of mock stock predictions to analyze.')
+  })},
   output: {schema: AutomatedStockInvestmentDecisionsOutputSchema},
   tools: [shouldInvestTool],
-  prompt: `You are an AI investment advisor. You will analyze stock market data and make automated investment decisions based on predefined rules.
+  prompt: `You are an AI investment advisor. You will analyze the provided stock market data and make automated investment decisions based on the user's predefined rules.
 
   Investment Amount: {{investmentAmount}}
   Investment Rules: {{rules}}
   Stock Data API: {{stockDataApiType}}
 
-  Based on the available investment amount, rules, and stock market data, provide an investment decision.
+  Analyze the following stock data:
+  {{#each mockStockData}}
+  - Ticker: {{ticker}}, Predicted Change: {{predictedChange}}, Confidence: {{confidence}}
+  {{/each}}
+
+  Based on the available investment amount, rules, and the provided stock market data, provide an investment decision.
   For each stock, use the shouldInvest tool to determine if investment is recommended.
   Output a description of the investment decision, including which stocks to buy/sell and the rationale.
   Also, provide a list of transactions to execute (ticker, action, quantity, price).
@@ -89,7 +97,19 @@ const automatedStockInvestmentDecisionsFlow = ai.defineFlow(
     outputSchema: AutomatedStockInvestmentDecisionsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+     // In a real application, you would fetch this data from the specified API.
+    // For demonstration, we'll use mock data.
+    const mockStockData = [
+        { ticker: 'AAPL', predictedChange: 0.07, confidence: 0.85 },
+        { ticker: 'GOOGL', predictedChange: 0.04, confidence: 0.9 },
+        { ticker: 'TSLA', predictedChange: -0.02, confidence: 0.6 },
+        { ticker: 'MSFT', predictedChange: 0.06, confidence: 0.75 },
+    ];
+
+    const {output} = await prompt({...input, mockStockData});
+    if (!output) {
+      throw new Error('The AI failed to generate an investment decision.');
+    }
+    return output;
   }
 );
