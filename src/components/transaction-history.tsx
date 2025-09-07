@@ -106,22 +106,24 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
         </div>
       );
     }
-
+    
+    const transactionsToShowInGroups = showAll ? groupedTransactions : Object.fromEntries(Object.entries(groupedTransactions).slice(0, 1));
     const txsToDisplay = showAll ? transactions : transactions.slice(0, 5);
-    if (txsToDisplay.length === 0) {
+
+    if (transactions.length === 0) {
       return (
         <div className="text-center text-muted-foreground py-8">
           No recent transactions found.
         </div>
       );
     }
-    
-    const transactionsToShow = showAll ? groupedTransactions : { 'Recent': txsToDisplay };
+
+    const finalTransactions = showAll ? groupedTransactions : {'Recent Activity' : txsToDisplay};
 
 
     return (
         <div className="space-y-6">
-            {Object.entries(transactionsToShow).map(([group, txs]) => (
+            {Object.entries(finalTransactions).map(([group, txs]) => (
                 <div key={group}>
                     <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
                         {group}
