@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bitcoin, Blocks, DollarSign, TrendingUp } from 'lucide-react';
 import { useWallet } from '@/hooks/use-wallet';
