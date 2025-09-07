@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -25,6 +26,8 @@ interface WalletContextType {
   btcAddress: string | null;
   stxBalance: number;
   btcBalance: number;
+  transactions: any[];
+  isLoadingTransactions: boolean;
   network: Network;
   setNetwork: (network: Network) => void;
   handleConnect: () => void;
@@ -43,6 +46,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [btcAddress, setBtcAddress] = useState<string | null>(null);
   const [stxBalance, setStxBalance] = useState(0);
   const [btcBalance, setBtcBalance] = useState(0);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [network, setNetworkState] = useState<Network>(networks[1]); // Default to Testnet
 
   const setNetwork = (newNetwork: Network) => {
@@ -97,6 +102,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const fetchTransactions = useCallback(async (address: string, net: Network) => {
+    setIsLoadingTransactions(true);
+    setTransactions([]);
+    try {
+      const response = await fetch(`${net.url}/extended/v1/address/${address}/transactions`);
+      if (response.ok) {
+        const data = await response.json();
+        // Filter for STX transfers to simplify the history
+        const stxTransferTxs = data.results.filter((tx: any) => tx.tx_type === 'token_transfer' && tx.stx_transfers?.length > 0);
+        setTransactions(stxTransferTxs);
+      } else {
+        console.error('Failed to fetch transactions:', response.status);
+        setTransactions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setTransactions([]);
+    } finally {
+      setIsLoadingTransactions(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (userSession.isUserSignedIn()) {
       const sessionData = userSession.loadUserData();
@@ -107,11 +134,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const btcAddr = network.id === 'mainnet' ? profile.btcAddress.p2wpkh.mainnet : profile.btcAddress.p2wpkh.testnet;
         setStxAddress(stxAddr);
         setBtcAddress(btcAddr);
-        if(stxAddr) fetchStxBalance(stxAddr, network);
-        if(btcAddr) fetchBtcBalance(btcAddr, network);
+        if(stxAddr) {
+          fetchStxBalance(stxAddr, network);
+          fetchTransactions(stxAddr, network);
+        }
+        if(btcAddr) {
+          fetchBtcBalance(btcAddr, network);
+        }
       }
     }
-  }, [fetchStxBalance, fetchBtcBalance, network]);
+  }, [fetchStxBalance, fetchBtcBalance, fetchTransactions, network]);
 
   const handleConnect = () => {
     showConnect({
@@ -134,6 +166,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setBtcAddress(null);
     setStxBalance(0);
     setBtcBalance(0);
+    setTransactions([]);
   };
   
   const handleSendTransaction = async (transaction: ActionResponse['transaction']) => {
@@ -150,7 +183,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 memo: 'Sent from StackAI Wallet',
                 onFinish: (data) => {
                     console.log('STX Transfer finished:', data);
-                    if(stxAddress) fetchStxBalance(stxAddress, network);
+                    if(stxAddress) {
+                      // Give the API a moment to update
+                      setTimeout(() => {
+                         fetchStxBalance(stxAddress, network);
+                         fetchTransactions(stxAddress, network);
+                      }, 3000);
+                    }
                     resolve();
                 },
                 onCancel: () => {
@@ -174,6 +213,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         btcAddress,
         stxBalance,
         btcBalance,
+        transactions,
+        isLoadingTransactions,
         network,
         setNetwork,
         handleConnect,
