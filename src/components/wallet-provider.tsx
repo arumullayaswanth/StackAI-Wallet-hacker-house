@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { AppConfig, UserSession, showConnect, openSTXTokenTransfer } from '@stacks/connect';
+import { AppConfig, UserSession, showConnect, openSTXTransfer } from '@stacks/connect';
 import { StacksTestnet } from '@stacks/network';
 import { ActionResponse } from '@/app/actions';
 
@@ -111,7 +111,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (transaction.asset === 'STX') {
        const network = new StacksTestnet();
        return new Promise<void>((resolve, reject) => {
-           openSTXTokenTransfer({
+           openSTXTransfer({
                 network: network,
                 recipient: transaction.recipient,
                 amount: transaction.amount * 1000000, // Convert STX to micro-STX
