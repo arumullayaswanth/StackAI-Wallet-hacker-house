@@ -21,6 +21,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { ConnectWallet } from '@/components/connect-wallet';
+import { NetworkSwitcher } from '@/components/network-switcher';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
@@ -90,6 +91,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="w-full flex-1">
               {/* Optional: Can add a search bar here */}
             </div>
+            <NetworkSwitcher />
             <ConnectWallet />
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
