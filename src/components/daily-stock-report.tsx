@@ -1,15 +1,34 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, TrendingDown, Newspaper } from 'lucide-react';
-import { DailyStockReportOutput, getDailyStockReport } from '@/ai/flows/get-daily-stock-report';
+import { TrendingUp, TrendingDown, Newspaper, Search } from 'lucide-react';
+import {
+  DailyStockReportOutput,
+  getDailyStockReport,
+} from '@/ai/flows/get-daily-stock-report';
+import { Input } from './ui/input';
 
 export function DailyStockReport() {
   const [report, setReport] = useState<DailyStockReportOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -26,6 +45,19 @@ export function DailyStockReport() {
 
     fetchReport();
   }, []);
+  
+  const filteredGainers = report?.topGainers.filter(
+    (stock) =>
+      stock.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredLosers = report?.topLosers.filter(
+    (stock) =>
+      stock.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
 
   const renderSkeleton = () => (
     <div className="space-y-4">
@@ -50,18 +82,35 @@ export function DailyStockReport() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <Newspaper className="w-6 h-6 text-primary" />
-          <CardTitle>Daily Market Movers</CardTitle>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Newspaper className="w-6 h-6 text-primary" />
+            <div>
+              <CardTitle>Daily Market Movers</CardTitle>
+              <CardDescription>
+                A summary of today's top stock market movements.
+              </CardDescription>
+            </div>
+          </div>
+          <div className="relative w-full sm:w-64">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name or ticker..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
-        <CardDescription>A summary of today's top stock market movements.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
         <div>
           <h3 className="flex items-center gap-2 text-lg font-semibold mb-2 text-green-600">
             <TrendingUp className="h-5 w-5" /> Top Gainers
           </h3>
-          {isLoading ? renderSkeleton() : (
+          {isLoading ? (
+            renderSkeleton()
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -71,13 +120,17 @@ export function DailyStockReport() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {report?.topGainers.map((stock) => (
+                {filteredGainers?.map((stock) => (
                   <TableRow key={stock.ticker}>
                     <TableCell>
                       <div className="font-medium">{stock.ticker}</div>
-                      <div className="text-xs text-muted-foreground">{stock.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {stock.name}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-right font-mono">{stock.price}</TableCell>
+                    <TableCell className="text-right font-mono">
+                      {stock.price}
+                    </TableCell>
                     <TableCell className="text-right font-mono text-green-600">
                       <div>{stock.percentChange}</div>
                       <div className="text-xs">{stock.change}</div>
@@ -92,7 +145,9 @@ export function DailyStockReport() {
           <h3 className="flex items-center gap-2 text-lg font-semibold mb-2 text-red-600">
             <TrendingDown className="h-5 w-5" /> Top Losers
           </h3>
-          {isLoading ? renderSkeleton() : (
+          {isLoading ? (
+            renderSkeleton()
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -102,13 +157,17 @@ export function DailyStockReport() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {report?.topLosers.map((stock) => (
+                {filteredLosers?.map((stock) => (
                   <TableRow key={stock.ticker}>
                     <TableCell>
                       <div className="font-medium">{stock.ticker}</div>
-                      <div className="text-xs text-muted-foreground">{stock.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {stock.name}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-right font-mono">{stock.price}</TableCell>
+                    <TableCell className="text-right font-mono">
+                      {stock.price}
+                    </TableCell>
                     <TableCell className="text-right font-mono text-red-600">
                       <div>{stock.percentChange}</div>
                       <div className="text-xs">{stock.change}</div>
