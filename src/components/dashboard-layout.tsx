@@ -25,7 +25,7 @@ import { ConnectWallet } from '@/components/connect-wallet';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/agents', label: 'Agents', icon: Bot },
-  { href: '#', label: 'History', icon: History },
+  { href: '/history', label: 'History', icon: History },
   { href: '#', label: 'Integrations', icon: Package },
   { href: '#', label: 'Settings', icon: Settings },
 ];
