@@ -2,6 +2,7 @@ import { DashboardLayout } from '@/components/dashboard-layout';
 import { WalletOverview } from '@/components/wallet-overview';
 import { ChatInterface } from '@/components/chat-interface';
 import { TransactionHistory } from '@/components/transaction-history';
+import { MyAssets } from '@/components/my-assets';
 
 export default function Home() {
   return (
@@ -12,7 +13,10 @@ export default function Home() {
           <div className="lg:col-span-2">
             <ChatInterface />
           </div>
-          <TransactionHistory />
+          <div className="flex flex-col gap-8">
+            <MyAssets />
+            <TransactionHistory />
+          </div>
         </div>
       </div>
     </DashboardLayout>

@@ -2,7 +2,6 @@
 
 import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { AppConfig, UserSession, showConnect } from '@stacks/connect';
-import { StacksMainnet } from "@stacks/network";
 
 interface WalletContextType {
   userSession: UserSession;
@@ -33,8 +32,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     try {
         // Using a public API for BTC balance - in a real app, you might use a more reliable service.
         const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
-        const data = await response.json();
-        setBtcBalance(data / 100000000); // Convert satoshis to BTC
+        const balanceInSatoshis = await response.text();
+        setBtcBalance(parseInt(balanceInSatoshis) / 100000000); // Convert satoshis to BTC
     } catch (error) {
         console.error('Failed to fetch BTC balance:', error);
         setBtcBalance(0);
