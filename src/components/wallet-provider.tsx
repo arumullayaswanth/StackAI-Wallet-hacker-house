@@ -1,7 +1,9 @@
 'use client';
 
 import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
+import { AppConfig, UserSession, showConnect, openSTXTokenTransfer } from '@stacks/connect';
+import { StacksTestnet } from '@stacks/network';
+import { ActionResponse } from '@/app/actions';
 
 interface WalletContextType {
   userSession: UserSession;
@@ -12,6 +14,7 @@ interface WalletContextType {
   btcBalance: number;
   handleConnect: () => void;
   handleDisconnect: () => void;
+  handleSendTransaction: (transaction: ActionResponse['transaction']) => Promise<void>;
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null);
@@ -92,6 +95,35 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setStxBalance(0);
     setBtcBalance(0);
   };
+  
+  const handleSendTransaction = async (transaction: ActionResponse['transaction']) => {
+    if (!transaction || !stxAddress) {
+        throw new Error("Transaction details are missing or user is not connected.");
+    }
+    
+    if (transaction.asset === 'STX') {
+       return new Promise<void>((resolve, reject) => {
+           openSTXTokenTransfer({
+                network: new StacksTestnet(),
+                recipient: transaction.recipient,
+                amount: transaction.amount * 1000000, // Convert STX to micro-STX
+                memo: 'Sent from StackAI Wallet',
+                onFinish: (data) => {
+                    console.log('STX Transfer finished:', data);
+                    resolve();
+                },
+                onCancel: () => {
+                    console.log('STX Transfer canceled.');
+                    reject(new Error("Transaction was canceled by the user."));
+                }
+            });
+       });
+    } else {
+        // TODO: Implement BTC and USDT transfers
+        console.warn(`${transaction.asset} transfers not yet implemented.`);
+        throw new Error(`${transaction.asset} transfers are not yet supported.`);
+    }
+  }
 
   return (
     <WalletContext.Provider
@@ -104,6 +136,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         btcBalance,
         handleConnect,
         handleDisconnect,
+        handleSendTransaction
       }}
     >
       {children}
