@@ -109,6 +109,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       let allTransactions: any[] = [];
       let currentUrl: string | null = `${net.url}/extended/v1/address/${address}/transactions`;
 
+      // Keep fetching until all pages are loaded
       while (currentUrl) {
         const response = await fetch(currentUrl);
         if (response.ok) {
@@ -186,10 +187,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     
     if (transaction.asset === 'STX') {
        return new Promise<void>((resolve, reject) => {
-           openSTXTransfer({
+            const amountInMicroStx = Math.round(transaction.amount * 1000000);
+           
+            openSTXTransfer({
                 network: network.instance,
                 recipient: transaction.recipient,
-                amount: transaction.amount * 1000000, // Convert STX to micro-STX
+                amount: amountInMicroStx,
                 memo: 'Sent from StackAI Wallet',
                 onFinish: (data) => {
                     console.log('STX Transfer finished:', data);
@@ -202,9 +205,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     }
                     resolve();
                 },
-                onCancel: (error: Error | string) => {
-                    console.log('STX Transfer canceled.', error);
-                    reject(new Error("Transaction was canceled by the user."));
+                onCancel: () => {
+                    console.log('STX Transfer canceled by user.');
+                    reject(new Error("The transaction was canceled."));
                 }
             });
        });
