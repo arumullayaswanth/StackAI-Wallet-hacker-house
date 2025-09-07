@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const ParseUserIntentInputSchema = z.object({
   prompt: z.string().describe('The user prompt to parse.'),
-  availableBalance: z.number().describe('The available balance of the user.'),
+  availableBalance: z.number().describe('The available balance of the user in STX.'),
 });
 export type ParseUserIntentInput = z.infer<typeof ParseUserIntentInputSchema>;
 
@@ -34,35 +34,40 @@ const ParseUserIntentOutputSchema = z.object({
   investmentStrategy: z.string().optional().describe('The investment strategy to be used, if applicable.'),
   stockTicker: z.string().optional().describe('The stock ticker to invest in, if applicable.'),
   rationale: z.string().describe('The rationale behind the parsed intent.'),
+  confidenceLevel: z.number().optional().describe('The confidence level of the stock prediction (0-1).'),
 });
 export type ParseUserIntentOutput = z.infer<typeof ParseUserIntentOutputSchema>;
 
 const StockRecommendationInputSchema = z.object({
-  availableBalance: z.number().describe('The available balance of the user.'),
+  availableBalance: z.number().describe('The available balance of the user in STX.'),
+  investmentStrategy: z.string().optional().describe('User-provided investment strategy, if any.'),
 });
 
 const StockRecommendationOutputSchema = z.object({
-  stockTicker: z.string().describe('The stock ticker symbol.'),
-  predictedMovement: z.string().describe('Whether the stock is predicted to rise or fall.'),
-  confidenceLevel: z.number().describe('The confidence level of the prediction (0-1).'),
+  stockTicker: z.string().describe('The recommended stock ticker symbol (e.g., AAPL, GOOGL).'),
+  predictedMovement: z.enum(['rise', 'fall']).describe('Whether the stock is predicted to rise or fall.'),
+  confidenceLevel: z.number().min(0).max(1).describe('The confidence level of the prediction (0-1).'),
+  rationale: z.string().describe('A brief rationale for the recommendation.'),
 });
 
 const getStockRecommendation = ai.defineTool(
   {
     name: 'getStockRecommendation',
-    description: 'Recommends a stock based on market data and prediction logic.',
+    description: 'Recommends a stock to invest in based on market data, prediction logic, and user balance.',
     inputSchema: StockRecommendationInputSchema,
     outputSchema: StockRecommendationOutputSchema,
   },
   async (input) => {
-    // Placeholder implementation for stock recommendation
-    //In a real implementation, this would fetch stock data and make predictions.
-    console.log('Calling getStockRecommendation tool', input);
-    return {
-      stockTicker: 'PLACEHOLDER',
-      predictedMovement: 'rise',
-      confidenceLevel: 0.75,
-    };
+    // In a real implementation, this would fetch real stock data and use a prediction model.
+    console.log('Calling getStockRecommendation tool with input:', input);
+    // This is mock data for demonstration purposes.
+    const mockStocks = [
+        { stockTicker: 'AAPL', predictedMovement: 'rise', confidenceLevel: 0.85, rationale: 'Strong quarterly earnings and new product announcements.' },
+        { stockTicker: 'GOOGL', predictedMovement: 'rise', confidenceLevel: 0.78, rationale: 'Growth in cloud services and AI development.' },
+        { stockTicker: 'TSLA', predictedMovement: 'fall', confidenceLevel: 0.65, rationale: 'Increased competition and production delays.' },
+    ];
+    const recommendedStock = mockStocks[Math.floor(Math.random() * mockStocks.length)];
+    return recommendedStock;
   }
 );
 
@@ -79,40 +84,31 @@ const prompt = ai.definePrompt({
     schema: ParseUserIntentOutputSchema,
   },
   tools: [getStockRecommendation],
-  prompt: `You are an AI assistant designed to parse user intent from natural language prompts and determine the appropriate action to take regarding their Bitcoin wallet on the Stacks blockchain.
+  prompt: `You are an AI assistant for a Bitcoin wallet on the Stacks L2 blockchain. Your job is to parse user intent from natural language prompts and determine the appropriate action.
 
-  Here are some example prompts and their corresponding parsed intents:
+  You can perform the following actions:
+  - TRANSFER: Send BTC or STX to another address.
+  - INVEST: Execute a simulated investment in stocks.
+  - WITHDRAW: Withdraw funds (simulated).
+  - SWAP: Swap between assets (simulated).
+  - GET_BALANCE: Check the user's wallet balance.
+  - UNKNOWN: If the intent is unclear.
+  
+  Your available STX balance is: {{{availableBalance}}}.
 
-  - Prompt: \"Transfer 0.01 BTC to Alice's wallet\"
-    - actionType: TRANSFER
-    - targetAddress: Alice's wallet address (parse from prompt if present, otherwise leave blank)
-    - amount: 0.01
-    - assetType: BTC
+  Here are some examples:
+  - Prompt: "Transfer 0.01 BTC to my friend's wallet SP2...K5"
+    - Parsed: { actionType: 'TRANSFER', targetAddress: 'SP2...K5', amount: 0.01, assetType: 'BTC', rationale: "User wants to send 0.01 BTC." }
+  - Prompt: "Invest 50% of my balance in the top rising stock"
+    - Parsed: { actionType: 'INVEST', investmentStrategy: "Top rising stock", amount: 50, rationale: "User wants to invest half their balance." }
+    - Note: This would likely require using the getStockRecommendation tool.
+  - Prompt: "What's my balance?"
+    - Parsed: { actionType: 'GET_BALANCE', rationale: "User is asking for their balance." }
 
-  - Prompt: \"Invest in the top 3 rising stocks with 50% of my balance\"
-    - actionType: INVEST
-    - investmentStrategy: Top 3 rising stocks
-    - amount: 50% of available balance
-
-  - Prompt: \"What is my current balance?\"
-    - actionType: GET_BALANCE
-
-  - Prompt: \"Withdraw 100 STX\"
-   - actionType: WITHDRAW
-   - amount: 100
-   - assetType: STX
-
-  Your available balance is: {{{availableBalance}}}.
+  If the user asks for an investment idea or to invest based on a strategy (e.g., "top rising stock"), use the 'getStockRecommendation' tool. The tool will provide a stock ticker, predicted movement, confidence, and rationale. Use this information to populate the 'stockTicker', and 'confidenceLevel' fields in your output.
 
   Now, parse the following prompt:
-
-  Prompt: {{{prompt}}}
-
-  The current tool for making stock recommendations is:
-  {{tool_description tool=getStockRecommendation}}
-  Should you use the tool, make sure to set stockTicker, and predictedMovement based on the recommendation.
-
-  Output (JSON):
+  "{{{prompt}}}"
   `, 
 });
 

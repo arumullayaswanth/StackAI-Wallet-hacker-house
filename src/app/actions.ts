@@ -21,36 +21,36 @@ export async function handleUserPrompt(prompt: string): Promise<string> {
     switch (intent.actionType) {
       case 'TRANSFER':
         if (intent.amount && intent.assetType && intent.targetAddress) {
-          response = `Okay, I'm preparing to transfer ${intent.amount} ${intent.assetType} to ${intent.targetAddress}. Please confirm the transaction in your wallet.`;
+          response = `I'm preparing to transfer ${intent.amount} ${intent.assetType} to ${intent.targetAddress}. Please confirm the transaction.`;
         } else {
-          response = "I understand you want to make a transfer, but I need more details like the amount, asset, and recipient.";
+          response = "I see you want to make a transfer. To proceed, please provide the amount, asset (BTC or STX), and the recipient's address.";
         }
         break;
       case 'INVEST':
          if (intent.stockTicker) {
-            response = `Based on my analysis, I recommend investing in ${intent.stockTicker}. The prediction is a price rise with a confidence level of ${intent.confidenceLevel ? (intent.confidenceLevel*100).toFixed(0) : 'N/A'}%. Shall I proceed with the investment?`;
+            response = `Based on my analysis, a good investment could be ${intent.stockTicker}. The prediction is a price rise with a confidence level of ${intent.confidenceLevel ? (intent.confidenceLevel*100).toFixed(0) : 'N/A'}%. Shall I proceed with a simulated investment?`;
         } else if (intent.investmentStrategy) {
-          response = `Okay, I will execute the investment strategy: "${intent.investmentStrategy}". I will use a portion of your ${availableBalance} STX balance.`;
+          response = `Okay, I will execute the investment strategy: "${intent.investmentStrategy}". I will use a portion of your ${availableBalance} STX balance for a simulated trade.`;
         } else {
-           response = "I understand you want to invest, but could you specify a strategy or ask for a stock recommendation?";
+           response = "I understand you want to invest. You can ask me for a stock recommendation or specify an investment strategy.";
         }
         break;
       case 'GET_BALANCE':
-        response = `Your current available balance is ${availableBalance} STX.`;
+        response = `Your current available balance is approximately ${availableBalance} STX.`;
         break;
       case 'WITHDRAW':
         if(intent.amount && intent.assetType) {
             response = `I am preparing to withdraw ${intent.amount} ${intent.assetType}. Please confirm.`;
         } else {
-            response = "I understand you want to withdraw, but please specify the amount and asset type.";
+            response = "I understand you want to withdraw. Please specify the amount and asset type (e.g. BTC or STX).";
         }
         break;
       case 'SWAP':
-        response = `Swap functionality is not fully implemented yet, but I understand you want to perform a swap. ${intent.rationale}`;
+        response = `Swap functionality is not yet implemented, but I understand you want to perform a swap. ${intent.rationale}`;
         break;
       case 'UNKNOWN':
       default:
-        response = `I'm not sure how to handle that request. Can you please rephrase? My capabilities include transferring tokens, making simulated investments, and checking your balance.`;
+        response = `I'm not quite sure how to handle that. I can help with transfers, simulated investments, and checking your balance. Could you please rephrase your request?`;
         break;
     }
 
@@ -58,6 +58,6 @@ export async function handleUserPrompt(prompt: string): Promise<string> {
 
   } catch (error) {
     console.error("Error parsing user intent:", error);
-    return "Sorry, I encountered an error while processing your request. Please try again.";
+    return "Sorry, I had trouble understanding that. Please try again.";
   }
 }
