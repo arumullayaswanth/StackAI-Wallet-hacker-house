@@ -33,8 +33,8 @@ function TransactionRow({ tx }: { tx: any }) {
 
     const explorerUrl =
     network.id === 'mainnet'
-      ? `https://explorer.stacks.co/txid/0x${tx.tx_id}`
-      : `https://explorer.stacks.co/txid/0x${tx.tx_id}?chain=${network.id}`;
+      ? `https://explorer.stacks.co/txid/${tx.tx_id}`
+      : `https://explorer.stacks.co/txid/${tx.tx_id}?chain=${network.id}`;
 
     let details = '';
     if (tx.tx_type === 'token_transfer' && transfer) {
