@@ -107,7 +107,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setTransactions([]);
     try {
       let allTransactions: any[] = [];
-      let currentUrl = `${net.url}/extended/v1/address/${address}/transactions`;
+      let currentUrl: string | null = `${net.url}/extended/v1/address/${address}/transactions`;
 
       while (currentUrl) {
         const response = await fetch(currentUrl);
@@ -117,11 +117,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           if (data.total > allTransactions.length && data.results.length > 0) {
              currentUrl = `${net.url}/extended/v1/address/${address}/transactions?limit=${data.limit}&offset=${allTransactions.length}`;
           } else {
-            currentUrl = '';
+            currentUrl = null;
           }
         } else {
            console.error('Failed to fetch transactions page:', response.status);
-           currentUrl = '';
+           currentUrl = null;
         }
       }
       setTransactions(allTransactions);
@@ -202,8 +202,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     }
                     resolve();
                 },
-                onCancel: () => {
-                    console.log('STX Transfer canceled.');
+                onCancel: (error: Error | string) => {
+                    console.log('STX Transfer canceled.', error);
                     reject(new Error("Transaction was canceled by the user."));
                 }
             });

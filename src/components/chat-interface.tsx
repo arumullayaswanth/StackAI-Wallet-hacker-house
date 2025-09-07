@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -105,13 +106,22 @@ export function ChatInterface() {
       const txSuccessMessage: Message = { role: 'ai', content: `I've successfully broadcasted the transaction to send ${pendingTransaction.amount} ${pendingTransaction.asset} to ${pendingTransaction.recipient}.` };
       setMessages((prev) => [...prev, txSuccessMessage]);
 
-    } catch (error) {
-       toast({
-        variant: "destructive",
-        title: "Transaction Canceled",
-        description: "The transaction was canceled or failed.",
-      });
-       const txFailMessage: Message = { role: 'ai', content: "It looks like the transaction was canceled or failed." };
+    } catch (error: any) {
+       let userMessage = "It looks like the transaction was canceled.";
+       if (error.message.includes("canceled")) {
+         toast({
+            title: "Transaction Canceled",
+            description: "The transaction was canceled in your wallet.",
+          });
+       } else {
+         toast({
+            variant: "destructive",
+            title: "Transaction Failed",
+            description: error.message || "An unknown error occurred.",
+         });
+         userMessage = "The transaction failed. Please check your wallet and try again.";
+       }
+       const txFailMessage: Message = { role: 'ai', content: userMessage };
        setMessages((prev) => [...prev, txFailMessage]);
     } finally {
       setPendingTransaction(undefined);
