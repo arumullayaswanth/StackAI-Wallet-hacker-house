@@ -106,15 +106,26 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setIsLoadingTransactions(true);
     setTransactions([]);
     try {
-      const response = await fetch(`${net.url}/extended/v1/address/${address}/transactions`);
-      if (response.ok) {
-        const data = await response.json();
-        // The previous filter was incorrect. We should show all transactions.
-        setTransactions(data.results || []);
-      } else {
-        console.error('Failed to fetch transactions:', response.status);
-        setTransactions([]);
+      let allTransactions: any[] = [];
+      let currentUrl = `${net.url}/extended/v1/address/${address}/transactions`;
+
+      while (currentUrl) {
+        const response = await fetch(currentUrl);
+        if (response.ok) {
+          const data = await response.json();
+          allTransactions = allTransactions.concat(data.results);
+          if (data.total > allTransactions.length && data.results.length > 0) {
+             currentUrl = `${net.url}/extended/v1/address/${address}/transactions?limit=${data.limit}&offset=${allTransactions.length}`;
+          } else {
+            currentUrl = '';
+          }
+        } else {
+           console.error('Failed to fetch transactions page:', response.status);
+           currentUrl = '';
+        }
       }
+      setTransactions(allTransactions);
+
     } catch (error) {
       console.error('Error fetching transactions:', error);
       setTransactions([]);
