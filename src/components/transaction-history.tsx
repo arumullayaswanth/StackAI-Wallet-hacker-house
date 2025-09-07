@@ -57,24 +57,6 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
     network.id === 'mainnet'
       ? `https://explorer.stacks.co/txid`
       : `https://explorer.stacks.co/txid?chain=${network.id}`;
-      
-  const groupedTransactions = transactions.reduce((acc, tx) => {
-    const date = parseISO(tx.burn_block_time_iso);
-    let group;
-    if (isToday(date)) {
-        group = 'Today';
-    } else if (isYesterday(date)) {
-        group = 'Yesterday';
-    } else {
-        group = format(date, 'MMMM d, yyyy');
-    }
-
-    if (!acc[group]) {
-        acc[group] = [];
-    }
-    acc[group].push(tx);
-    return acc;
-  }, {} as Record<string, any[]>);
 
   const renderContent = () => {
     if (!stxAddress) {
@@ -106,9 +88,6 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
         </div>
       );
     }
-    
-    const transactionsToShowInGroups = showAll ? groupedTransactions : Object.fromEntries(Object.entries(groupedTransactions).slice(0, 1));
-    const txsToDisplay = showAll ? transactions : transactions.slice(0, 5);
 
     if (transactions.length === 0) {
       return (
@@ -117,13 +96,35 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
         </div>
       );
     }
+    
+    const transactionsToDisplay = showAll ? transactions : transactions.slice(0, 5);
 
-    const finalTransactions = showAll ? groupedTransactions : {'Recent Activity' : txsToDisplay};
+    const groupedTransactions = transactionsToDisplay.reduce((acc, tx) => {
+      const date = parseISO(tx.burn_block_time_iso);
+      let group;
+      if (showAll) {
+         if (isToday(date)) {
+            group = 'Today';
+        } else if (isYesterday(date)) {
+            group = 'Yesterday';
+        } else {
+            group = format(date, 'MMMM d, yyyy');
+        }
+      } else {
+        group = 'Recent Activity';
+      }
+
+      if (!acc[group]) {
+          acc[group] = [];
+      }
+      acc[group].push(tx);
+      return acc;
+    }, {} as Record<string, any[]>);
 
 
     return (
         <div className="space-y-6">
-            {Object.entries(finalTransactions).map(([group, txs]) => (
+            {Object.entries(groupedTransactions).map(([group, txs]) => (
                 <div key={group}>
                     <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
                         {group}
