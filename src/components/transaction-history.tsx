@@ -71,8 +71,8 @@ function TransactionRow({ tx }: { tx: any }) {
         }
     };
     
-    const formatStxAmount = (microStx: number) => {
-        return (microStx / 1000000).toLocaleString('en-US', {
+    const formatStxAmount = (amount: string) => {
+        return (Number(amount) / 1000000).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 6,
         });
@@ -97,7 +97,7 @@ function TransactionRow({ tx }: { tx: any }) {
                 </div>
             </div>
             <div className="text-right">
-                <div className="font-medium font-mono">{transfer ? `${formatStxAmount(Number(transfer.amount))} STX` : ''}</div>
+                <div className="font-medium font-mono">{transfer ? `${isSent ? '-' : '+'}${formatStxAmount(transfer.amount)} STX` : ''}</div>
                 <div className="text-xs">
                 {getStatusBadge(tx.tx_status)}
                 </div>
