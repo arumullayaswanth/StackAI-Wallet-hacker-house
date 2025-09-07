@@ -97,10 +97,12 @@ const prompt = ai.definePrompt({
   Your available STX balance is: {{{availableBalance}}}.
 
   Here are some examples:
-  - Prompt: "Transfer 0.01 BTC to my friend's wallet SP2...K5"
-    - Parsed: { actionType: 'TRANSFER', targetAddress: 'SP2...K5', amount: 0.01, assetType: 'BTC', rationale: "User wants to send 0.01 BTC." }
-  - Prompt: "Confirm and send 100 USDT from my balance to ST1...H50"
-    - Parsed: { actionType: 'TRANSFER', targetAddress: 'ST1...H50', amount: 100, assetType: 'USDT', rationale: "User wants to send 100 USDT." }
+  - Prompt: "Send 0.01 BTC to wallet ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V"
+    - Parsed: { actionType: 'TRANSFER', targetAddress: 'ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V', amount: 0.01, assetType: 'BTC', rationale: "User wants to send 0.01 BTC." }
+  - Prompt: "Transfer 25 STX to ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V"
+    - Parsed: { actionType: 'TRANSFER', targetAddress: 'ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V', amount: 25, assetType: 'STX', rationale: "User wants to send 25 STX." }
+  - Prompt: "Confirm and send 100 USDT from my balance to ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V"
+    - Parsed: { actionType: 'TRANSFER', targetAddress: 'ST28WZKE2AHRYV48TGJ6SPQ66E99553Z673X7B20V', amount: 100, assetType: 'USDT', rationale: "User wants to send 100 USDT." }
   - Prompt: "Invest 50% of my balance in the top rising stock"
     - Parsed: { actionType: 'INVEST', investmentStrategy: "Top rising stock", amount: 50, rationale: "User wants to invest half their balance." }
     - Note: This would likely require using the getStockRecommendation tool.

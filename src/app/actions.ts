@@ -28,11 +28,17 @@ export async function handleUserPrompt(prompt: string, availableBalance: number)
     switch (intent.actionType) {
       case 'TRANSFER':
         if (intent.amount && intent.assetType && intent.targetAddress) {
+           const asset = intent.assetType.toUpperCase() as 'STX' | 'BTC' | 'USDT';
+           if (asset !== 'STX' && asset !== 'BTC' && asset !== 'USDT') {
+              response = { text: `I can only handle transfers for STX, BTC, or USDT at the moment.` };
+              break;
+           }
+
           response = {
-            text: `I'm preparing to transfer ${intent.amount} ${intent.assetType} to ${intent.targetAddress}. Please confirm the transaction.`,
+            text: `I'm preparing to transfer ${intent.amount} ${asset} to ${intent.targetAddress}. Please confirm the transaction.`,
             transaction: {
               action: 'transfer',
-              asset: intent.assetType as 'STX' | 'BTC' | 'USDT',
+              asset: asset,
               amount: intent.amount,
               recipient: intent.targetAddress,
             }
