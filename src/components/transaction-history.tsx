@@ -40,9 +40,9 @@ function TransactionRow({ tx }: { tx: any }) {
     if (tx.tx_type === 'token_transfer' && transfer) {
         details = isSent ? `to ${transfer.recipient}` : `from ${tx.sender_address}`;
     } else if (tx.tx_type === 'contract_call') {
-        details = `call to ${tx.contract_call.contract_id.split('.')[1]}`;
+        details = `call to ${tx.contract_call.contract_id.split('.')[1]}.${tx.contract_call.function_name}`;
     }
-     const formattedDetails = details.length > 20 ? `${details.slice(0,10)}...${details.slice(-4)}` : details;
+     const formattedDetails = details.length > 30 ? `${details.slice(0,15)}...${details.slice(-10)}` : details;
 
     const getStatusBadge = (status: string) => {
         switch (status) {
