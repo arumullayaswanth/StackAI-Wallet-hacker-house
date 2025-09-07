@@ -5,6 +5,7 @@ import { createContext, useState, useEffect, ReactNode, useCallback } from 'reac
 import { AppConfig, UserSession, showConnect, openSTXTransfer } from '@stacks/connect';
 import { StacksMainnet, StacksTestnet, StacksDevnet } from '@stacks/network';
 import { ActionResponse } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 export type Network = {
   id: string;
@@ -49,6 +50,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [network, setNetworkState] = useState<Network>(networks[1]); // Default to Testnet
+  const { toast } = useToast();
 
   const setNetwork = (newNetwork: Network) => {
     setNetworkState(newNetwork);
@@ -82,9 +84,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
     } catch (error) {
         console.error('Error fetching BTC balance. This might be a network error or the API is down.', error);
+        toast({
+            variant: "destructive",
+            title: "Could not fetch BTC Balance",
+            description: "Failed to connect to the Blockcypher API.",
+        });
         setBtcBalance(0);
     }
-  }, []);
+  }, [toast]);
 
   const fetchStxBalance = useCallback(async (address: string, net: Network) => {
     try {
@@ -98,42 +105,39 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
     } catch (error) {
         console.error(`Error fetching STX balance. If you are on Devnet, ensure your local node is running. URL: ${net.url}`, error);
+        toast({
+            variant: "destructive",
+            title: "Could not fetch STX Balance",
+            description: `Failed to connect to the Stacks API at ${net.url}. If using Devnet, please ensure it is running.`,
+        });
         setStxBalance(0);
     }
-  }, []);
+  }, [toast]);
 
   const fetchTransactions = useCallback(async (address: string, net: Network) => {
     setIsLoadingTransactions(true);
     setTransactions([]);
     try {
-      let allTransactions: any[] = [];
-      let currentUrl: string | null = `${net.url}/extended/v1/address/${address}/transactions`;
-
-      // Keep fetching until all pages are loaded
-      while (currentUrl) {
-        const response = await fetch(currentUrl);
+      const response = await fetch(`${net.url}/extended/v1/address/${address}/transactions`);
         if (response.ok) {
           const data = await response.json();
-          allTransactions = allTransactions.concat(data.results);
-          if (data.total > allTransactions.length && data.results.length > 0) {
-             currentUrl = `${net.url}/extended/v1/address/${address}/transactions?limit=${data.limit}&offset=${allTransactions.length}`;
-          } else {
-            currentUrl = null;
-          }
+          setTransactions(data.results);
         } else {
-           console.error(`Failed to fetch a page of transactions. Status: ${response.status}. URL: ${currentUrl}`);
-           currentUrl = null;
+           console.error(`Failed to fetch transactions. Status: ${response.status}. URL: ${response.url}`);
+           setTransactions([]);
         }
-      }
-      setTransactions(allTransactions);
-
     } catch (error) {
       console.error(`Error fetching transactions. If you are on Devnet, ensure your local node is running. URL: ${net.url}`, error);
+       toast({
+            variant: "destructive",
+            title: "Could not fetch Transactions",
+            description: `Failed to connect to the Stacks API at ${net.url}. If using Devnet, please ensure it is running.`,
+        });
       setTransactions([]);
     } finally {
       setIsLoadingTransactions(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (userSession.isUserSignedIn()) {
