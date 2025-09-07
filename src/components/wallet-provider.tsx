@@ -19,7 +19,7 @@ export const WalletContext = createContext<WalletContextType | null>(null);
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig });
 
-const STACKS_API_URL = 'https://api.mainnet.hiro.so';
+const STACKS_API_URL = 'https://api.testnet.hiro.so';
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [userData, setUserData] = useState<any | null>(null);
@@ -30,10 +30,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const fetchBtcBalance = useCallback(async (address: string) => {
     try {
-        // Using a public API for BTC balance - in a real app, you might use a more reliable service.
-        const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
-        const balanceInSatoshis = await response.text();
-        setBtcBalance(parseInt(balanceInSatoshis) / 100000000); // Convert satoshis to BTC
+        // Using a public API for BTC balance - for testnet, this might not return a value.
+        // For a real testnet app, you'd use a testnet-specific BTC faucet and explorer API.
+        const response = await fetch(`https://mempool.space/testnet/api/address/${address}`);
+        if(response.ok) {
+            const data = await response.json();
+            setBtcBalance(data.chain_stats.funded_txo_sum / 100000000); // Convert satoshis to BTC
+        } else {
+             setBtcBalance(0);
+        }
     } catch (error) {
         console.error('Failed to fetch BTC balance:', error);
         setBtcBalance(0);
@@ -56,8 +61,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const sessionData = userSession.loadUserData();
       setUserData(sessionData);
       const profile = sessionData.profile;
-      const stxAddr = profile.stxAddress.mainnet;
-      const btcAddr = profile.btcAddress.p2wpkh.mainnet;
+      const stxAddr = profile.stxAddress.testnet;
+      const btcAddr = profile.btcAddress.p2wpkh.testnet;
       setStxAddress(stxAddr);
       setBtcAddress(btcAddr);
       fetchStxBalance(stxAddr);
