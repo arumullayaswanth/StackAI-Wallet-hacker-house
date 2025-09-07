@@ -109,9 +109,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
     
     if (transaction.asset === 'STX') {
+       const network = new StacksTestnet();
        return new Promise<void>((resolve, reject) => {
            openSTXTokenTransfer({
-                network: new StacksTestnet(),
+                network: network,
                 recipient: transaction.recipient,
                 amount: transaction.amount * 1000000, // Convert STX to micro-STX
                 memo: 'Sent from StackAI Wallet',
