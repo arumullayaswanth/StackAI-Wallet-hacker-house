@@ -16,6 +16,13 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
+function formatTxType(txType: string) {
+    return txType
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
   const { transactions, stxAddress, network, isLoadingTransactions } = useWallet();
 
@@ -132,9 +139,15 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
                     <div className="space-y-1">
                         {txs.map((tx: any) => {
                              const isSent = tx.sender_address === stxAddress;
-                             const transfer = tx.stx_transfers[0];
-                             const details = isSent ? `to ${transfer.recipient}` : `from ${tx.sender_address}`;
-                             const formattedDetails = `${details.slice(0,10)}...${details.slice(-4)}`;
+                             const transfer = tx.stx_transfers?.[0];
+
+                             let details = '';
+                             if (tx.tx_type === 'token_transfer' && transfer) {
+                                details = isSent ? `to ${transfer.recipient}` : `from ${tx.sender_address}`;
+                             } else if (tx.tx_type === 'contract_call') {
+                                details = `call to ${tx.contract_call.contract_id.split('.')[1]}`;
+                             }
+                             const formattedDetails = details.length > 20 ? `${details.slice(0,10)}...${details.slice(-4)}` : details;
 
                             return (
                                 <div key={tx.tx_id} className="flex items-center justify-between p-3 rounded-md hover:bg-muted/50">
@@ -144,7 +157,7 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
                                         </div>
                                         <div>
                                             <div className="font-medium flex items-center gap-1.5">
-                                            {tx.tx_type === 'token_transfer' ? 'Transfer' : tx.tx_type.replace('_', ' ')}
+                                            {formatTxType(tx.tx_type)}
                                             <a href={`${explorerUrl}/${tx.tx_id}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
                                                 <ExternalLink className="h-3 w-3"/>
                                             </a>
@@ -155,7 +168,7 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="font-medium font-mono">{formatStxAmount(Number(transfer.amount))} STX</div>
+                                        <div className="font-medium font-mono">{transfer ? `${formatStxAmount(Number(transfer.amount))} STX` : ''}</div>
                                         <div className="text-xs">
                                         {getStatusBadge(tx.tx_status)}
                                         </div>

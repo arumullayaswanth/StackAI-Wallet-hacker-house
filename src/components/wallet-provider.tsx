@@ -109,9 +109,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const response = await fetch(`${net.url}/extended/v1/address/${address}/transactions`);
       if (response.ok) {
         const data = await response.json();
-        // Filter for STX transfers to simplify the history
-        const stxTransferTxs = data.results.filter((tx: any) => tx.tx_type === 'token_transfer' && tx.stx_transfers?.length > 0);
-        setTransactions(stxTransferTxs);
+        // The previous filter was incorrect. We should show all transactions.
+        setTransactions(data.results || []);
       } else {
         console.error('Failed to fetch transactions:', response.status);
         setTransactions([]);
