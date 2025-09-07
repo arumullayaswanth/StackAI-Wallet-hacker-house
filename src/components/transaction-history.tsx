@@ -33,8 +33,8 @@ function TransactionRow({ tx }: { tx: any }) {
 
     const explorerUrl =
     network.id === 'mainnet'
-      ? `https://explorer.stacks.co/txid`
-      : `https://explorer.stacks.co/txid?chain=${network.id}`;
+      ? `https://explorer.stacks.co/txid/0x${tx.tx_id}`
+      : `https://explorer.stacks.co/txid/0x${tx.tx_id}?chain=${network.id}`;
 
     let details = '';
     if (tx.tx_type === 'token_transfer' && transfer) {
@@ -87,7 +87,7 @@ function TransactionRow({ tx }: { tx: any }) {
                 <div>
                     <div className="font-medium flex items-center gap-1.5">
                     {formatTxType(tx.tx_type)}
-                    <a href={`${explorerUrl}/${tx.tx_id}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+                    <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
                         <ExternalLink className="h-3 w-3"/>
                     </a>
                     </div>
@@ -148,18 +148,9 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
       );
     }
     
-    if (showAll) {
-         return (
-            <div className="space-y-1">
-                {transactions.map((tx: any) => (
-                    <TransactionRow tx={tx} key={tx.tx_id} />
-                ))}
-            </div>
-        );
-    }
+    const displayTransactions = showAll ? transactions : transactions.slice(0, 5);
     
-    const recentTransactions = transactions.slice(0, 5);
-    const groupedTransactions = recentTransactions.reduce((acc, tx) => {
+    const groupedTransactions = displayTransactions.reduce((acc, tx) => {
         const date = parseISO(tx.burn_block_time_iso);
         let group;
         if (isToday(date)) {
@@ -183,7 +174,7 @@ export function TransactionHistory({ showAll = false }: { showAll?: boolean }) {
             {Object.entries(groupedTransactions).map(([group, txs]) => (
                 <div key={group}>
                     <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
-                        {group === 'Recent Activity' ? '' : group}
+                        {group}
                     </h3>
                      <div className="space-y-1">
                         {txs.map((tx: any) => (
