@@ -77,11 +77,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             const data = await response.json();
             setBtcBalance(data.final_balance / 100000000); // Convert satoshis to BTC
         } else {
-             console.error('Failed to fetch BTC balance with status:', response.status);
+             console.error(`Failed to fetch BTC balance. Status: ${response.status}. URL: ${response.url}`);
              setBtcBalance(0);
         }
     } catch (error) {
-        console.error('Failed to fetch BTC balance:', error);
+        console.error('Error fetching BTC balance. This might be a network error or the API is down.', error);
         setBtcBalance(0);
     }
   }, []);
@@ -93,11 +93,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           const data = await response.json();
           setStxBalance(data.stx.balance / 1000000); // Convert micro-STX to STX
         } else {
-          console.error('Failed to fetch STX balance with status:', response.status);
+          console.error(`Failed to fetch STX balance. Status: ${response.status}. URL: ${response.url}`);
           setStxBalance(0);
         }
     } catch (error) {
-        console.error('Failed to fetch STX balance:', error);
+        console.error(`Error fetching STX balance. If you are on Devnet, ensure your local node is running. URL: ${net.url}`, error);
         setStxBalance(0);
     }
   }, []);
@@ -121,14 +121,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             currentUrl = null;
           }
         } else {
-           console.error('Failed to fetch transactions page:', response.status);
+           console.error(`Failed to fetch a page of transactions. Status: ${response.status}. URL: ${currentUrl}`);
            currentUrl = null;
         }
       }
       setTransactions(allTransactions);
 
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error(`Error fetching transactions. If you are on Devnet, ensure your local node is running. URL: ${net.url}`, error);
       setTransactions([]);
     } finally {
       setIsLoadingTransactions(false);
@@ -205,9 +205,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     }
                     resolve();
                 },
-                onCancel: (error) => {
-                    console.log('STX Transfer canceled by user:', error);
-                    reject(new Error("The transaction was canceled."));
+                onCancel: () => {
+                    console.log('STX Transfer canceled by user.');
+                    reject(new Error("The transaction was canceled in the wallet."));
                 }
             });
        });
