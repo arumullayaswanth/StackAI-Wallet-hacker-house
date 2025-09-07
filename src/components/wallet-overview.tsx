@@ -1,12 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bitcoin, Blocks, DollarSign, TrendingUp } from 'lucide-react';
+import { useWallet } from '@/hooks/use-wallet';
 
-const btcBalance = 0.5;
-const stxBalance = 1200;
 const btcPrice = 67000;
 const stxPrice = 2.1;
 
 export function WalletOverview() {
+  const { btcBalance, stxBalance, btcAddress, stxAddress } = useWallet();
+
+  const totalValue = (btcBalance * btcPrice) + (stxBalance * stxPrice);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -18,8 +21,8 @@ export function WalletOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{btcBalance.toFixed(4)} BTC</div>
-          <p className="text-xs text-muted-foreground">
-            ≈ ${(btcBalance * btcPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-xs text-muted-foreground truncate">
+            {btcAddress ? `≈ $${(btcBalance * btcPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Wallet not connected'}
           </p>
         </CardContent>
       </Card>
@@ -32,8 +35,8 @@ export function WalletOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stxBalance.toLocaleString()} STX</div>
-          <p className="text-xs text-muted-foreground">
-            ≈ ${(stxBalance * stxPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-xs text-muted-foreground truncate">
+             {stxAddress ? `≈ $${(stxBalance * stxPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Wallet not connected'}
           </p>
         </CardContent>
       </Card>
@@ -44,7 +47,7 @@ export function WalletOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            ${((btcBalance * btcPrice) + (stxBalance * stxPrice)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <p className="text-xs text-muted-foreground">+5.2% from last month</p>
         </CardContent>
