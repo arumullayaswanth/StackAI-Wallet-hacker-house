@@ -187,7 +187,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     
     if (transaction.asset === 'STX') {
        return new Promise<void>((resolve, reject) => {
-            const amountInMicroStx = Math.round(transaction.amount * 1000000);
+            const amountInMicroStx = BigInt(Math.round(transaction.amount * 1_000_000));
            
             openSTXTransfer({
                 network: network.instance,
@@ -205,8 +205,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     }
                     resolve();
                 },
-                onCancel: () => {
-                    console.log('STX Transfer canceled by user.');
+                onCancel: (error) => {
+                    console.log('STX Transfer canceled by user:', error);
                     reject(new Error("The transaction was canceled."));
                 }
             });
