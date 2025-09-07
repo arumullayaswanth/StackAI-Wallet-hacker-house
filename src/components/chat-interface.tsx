@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { handleUserPrompt } from '@/app/actions';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useWallet } from '@/hooks/use-wallet';
 
 const FormSchema = z.object({
   prompt: z.string().min(1, 'Please enter a prompt.'),
@@ -35,6 +36,7 @@ export function ChatInterface() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { stxBalance } = useWallet();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -60,7 +62,7 @@ export function ChatInterface() {
     scrollToBottom();
     
     try {
-      const aiResponse = await handleUserPrompt(data.prompt);
+      const aiResponse = await handleUserPrompt(data.prompt, stxBalance);
       const aiMessage: Message = { role: 'ai', content: aiResponse };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {

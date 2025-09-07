@@ -2,10 +2,7 @@
 
 import { parseUserIntent, ParseUserIntentOutput } from '@/ai/flows/parse-user-intent';
 
-// Mock balance
-const availableBalance = 1200; // Let's use STX balance as default
-
-export async function handleUserPrompt(prompt: string): Promise<string> {
+export async function handleUserPrompt(prompt: string, availableBalance: number): Promise<string> {
   if (!prompt) {
     return "Please enter a command.";
   }
