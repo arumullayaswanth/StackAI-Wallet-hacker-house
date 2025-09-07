@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bitcoin, Blocks } from 'lucide-react';
+import { Bitcoin, Blocks, DollarSign, TrendingUp } from 'lucide-react';
 
 const btcBalance = 0.5;
 const stxBalance = 1200;
@@ -38,6 +38,7 @@ export function WalletOverview() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Value</CardTitle>
+           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
@@ -51,6 +52,7 @@ export function WalletOverview() {
           <CardTitle className="text-sm font-medium">
             Simulated P/L
           </CardTitle>
+           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-green-600">+$1,234.56</div>
