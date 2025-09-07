@@ -6,7 +6,6 @@ import { MyAssets } from '@/components/my-assets';
 
 export default function Home() {
   return (
-    <DashboardLayout>
       <div className="flex flex-col gap-8">
         <WalletOverview />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -19,6 +18,5 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

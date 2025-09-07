@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { WalletProvider } from '@/components/wallet-provider';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 export const metadata: Metadata = {
   title: 'StackAI Wallet',
@@ -23,7 +24,9 @@ export default function RootLayout({
       </head>
       <body className={cn("font-body antialiased", "min-h-screen bg-background font-sans")}>
         <WalletProvider>
-          {children}
+          <DashboardLayout>
+            {children}
+          </DashboardLayout>
         </WalletProvider>
         <Toaster />
       </body>
