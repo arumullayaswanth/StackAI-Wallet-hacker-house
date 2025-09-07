@@ -1,4 +1,4 @@
-import { DashboardLayout } from '@/components/dashboard-layout';
+
 import { WalletOverview } from '@/components/wallet-overview';
 import { ChatInterface } from '@/components/chat-interface';
 import { TransactionHistory } from '@/components/transaction-history';
