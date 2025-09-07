@@ -23,7 +23,7 @@ export async function handleUserPrompt(prompt: string): Promise<string> {
         if (intent.amount && intent.assetType && intent.targetAddress) {
           response = `I'm preparing to transfer ${intent.amount} ${intent.assetType} to ${intent.targetAddress}. Please confirm the transaction.`;
         } else {
-          response = "I see you want to make a transfer. To proceed, please provide the amount, asset (BTC or STX), and the recipient's address.";
+          response = "I see you want to make a transfer. To proceed, please provide the amount, asset (BTC, STX, or USDT), and the recipient's address.";
         }
         break;
       case 'INVEST':

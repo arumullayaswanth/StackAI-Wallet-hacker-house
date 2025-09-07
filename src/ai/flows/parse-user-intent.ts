@@ -30,7 +30,7 @@ const ParseUserIntentOutputSchema = z.object({
   actionType: ActionTypeSchema.describe('The action type to be taken.'),
   targetAddress: z.string().optional().describe('The target address for the transaction, if applicable.'),
   amount: z.number().optional().describe('The amount to be transacted, if applicable.'),
-  assetType: z.string().optional().describe('The type of asset to be transacted, if applicable (e.g., BTC, STX).'),
+  assetType: z.string().optional().describe('The type of asset to be transacted, if applicable (e.g., BTC, STX, USDT).'),
   investmentStrategy: z.string().optional().describe('The investment strategy to be used, if applicable.'),
   stockTicker: z.string().optional().describe('The stock ticker to invest in, if applicable.'),
   rationale: z.string().describe('The rationale behind the parsed intent.'),
@@ -87,7 +87,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI assistant for a Bitcoin wallet on the Stacks L2 blockchain. Your job is to parse user intent from natural language prompts and determine the appropriate action.
 
   You can perform the following actions:
-  - TRANSFER: Send BTC or STX to another address.
+  - TRANSFER: Send BTC, STX, or USDT to another address.
   - INVEST: Execute a simulated investment in stocks.
   - WITHDRAW: Withdraw funds (simulated).
   - SWAP: Swap between assets (simulated).
@@ -99,6 +99,8 @@ const prompt = ai.definePrompt({
   Here are some examples:
   - Prompt: "Transfer 0.01 BTC to my friend's wallet SP2...K5"
     - Parsed: { actionType: 'TRANSFER', targetAddress: 'SP2...K5', amount: 0.01, assetType: 'BTC', rationale: "User wants to send 0.01 BTC." }
+  - Prompt: "Confirm and send 100 USDT from my balance to ST1...H50"
+    - Parsed: { actionType: 'TRANSFER', targetAddress: 'ST1...H50', amount: 100, assetType: 'USDT', rationale: "User wants to send 100 USDT." }
   - Prompt: "Invest 50% of my balance in the top rising stock"
     - Parsed: { actionType: 'INVEST', investmentStrategy: "Top rising stock", amount: 50, rationale: "User wants to invest half their balance." }
     - Note: This would likely require using the getStockRecommendation tool.
