@@ -10,13 +10,13 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const AgentFlowInputSchema = z.object({
+const AgentFlowInputSchema = z.object({
   agentId: z.string().describe('The ID of the agent to invoke.'),
   agentInput: z.any().describe('The input to pass to the agent.'),
 });
 export type AgentFlowInput = z.infer<typeof AgentFlowInputSchema>;
 
-export const AgentFlowOutputSchema = z.object({
+const AgentFlowOutputSchema = z.object({
   agentId: z.string().describe('The ID of the invoked agent.'),
   agentOutput: z.any().describe('The output from the agent.'),
   error: z.string().optional().describe('Any error that occurred.'),
