@@ -51,8 +51,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const fetchStxBalance = useCallback(async (address: string) => {
     try {
         const response = await fetch(`${STACKS_API_URL}/extended/v1/address/${address}/balances`);
-        const data = await response.json();
-        setStxBalance(data.stx.balance / 1000000); // Convert micro-STX to STX
+        if (response.ok) {
+          const data = await response.json();
+          setStxBalance(data.stx.balance / 1000000); // Convert micro-STX to STX
+        } else {
+          console.error('Failed to fetch STX balance with status:', response.status);
+          setStxBalance(0);
+        }
     } catch (error) {
         console.error('Failed to fetch STX balance:', error);
         setStxBalance(0);
@@ -64,12 +69,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const sessionData = userSession.loadUserData();
       setUserData(sessionData);
       const profile = sessionData.profile;
-      const stxAddr = profile.stxAddress.testnet;
-      const btcAddr = profile.btcAddress.p2wpkh.testnet;
-      setStxAddress(stxAddr);
-      setBtcAddress(btcAddr);
-      fetchStxBalance(stxAddr);
-      fetchBtcBalance(btcAddr);
+      if (profile) {
+        const stxAddr = profile.stxAddress.testnet;
+        const btcAddr = profile.btcAddress.p2wpkh.testnet;
+        setStxAddress(stxAddr);
+        setBtcAddress(btcAddr);
+        if(stxAddr) fetchStxBalance(stxAddr);
+        if(btcAddr) fetchBtcBalance(btcAddr);
+      }
     }
   }, [fetchStxBalance, fetchBtcBalance]);
 
