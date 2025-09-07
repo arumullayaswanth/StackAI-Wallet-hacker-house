@@ -117,6 +117,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 memo: 'Sent from StackAI Wallet',
                 onFinish: (data) => {
                     console.log('STX Transfer finished:', data);
+                    // After a successful transaction, you might want to refetch the balance.
+                    if(stxAddress) fetchStxBalance(stxAddress);
                     resolve();
                 },
                 onCancel: () => {
