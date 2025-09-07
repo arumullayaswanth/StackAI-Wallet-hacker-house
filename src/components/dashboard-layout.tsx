@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,6 +10,7 @@ import {
   History,
   PanelLeft,
   Package,
+  Newspaper,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -27,6 +29,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/agents', label: 'Agents', icon: Bot },
   { href: '/history', label: 'History', icon: History },
+  { href: '/market', label: 'Market', icon: Newspaper },
   { href: '#', label: 'Integrations', icon: Package },
   { href: '#', label: 'Settings', icon: Settings },
 ];
