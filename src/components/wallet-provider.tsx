@@ -30,13 +30,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const fetchBtcBalance = useCallback(async (address: string) => {
     try {
-        // Using a public API for BTC balance - for testnet, this might not return a value.
-        // For a real testnet app, you'd use a testnet-specific BTC faucet and explorer API.
-        const response = await fetch(`https://mempool.space/testnet/api/address/${address}`);
+        // Using blockcypher's API for testnet balance
+        const response = await fetch(`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`);
         if(response.ok) {
             const data = await response.json();
-            setBtcBalance(data.chain_stats.funded_txo_sum / 100000000); // Convert satoshis to BTC
+            setBtcBalance(data.final_balance / 100000000); // Convert satoshis to BTC
         } else {
+             console.error('Failed to fetch BTC balance with status:', response.status);
              setBtcBalance(0);
         }
     } catch (error) {
