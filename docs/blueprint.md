@@ -19,3 +19,5 @@
 - Use minimalist line icons to represent different transaction types, security levels, and agent functions.
 - Design a clean, intuitive layout with a prominent prompt input box and clear display of wallet information.
 - Subtle animations and transitions to provide feedback on user actions and AI agent processes.
+
+- 
